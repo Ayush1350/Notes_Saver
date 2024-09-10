@@ -11,19 +11,19 @@ const folderSlice = createSlice({
   name: 'folder',
   initialState,
   reducers: {
-    addFolder: (state, action) => {
+    createFolder: (state, action) => {
       state.folders.push({ id: uuidv4(), name: action.payload, files: [] });
     },
     removeFolder: (state, action) => {
       state.folders = state.folders.filter(folder => folder.id !== action.payload);
     },
-    editFolder: (state, action) => {
+    renameFolder: (state, action) => {
       const folder = state.folders.find(folder => folder.id === action.payload.id);
       if (folder) {
         folder.name = action.payload.newName;
       }
     },
-    addFile: (state, action) => {
+    createFile: (state, action) => {
       const folder = state.folders.find(folder => folder.id === action.payload.folderId);
       if (folder) {
         folder.files.push(action.payload.file);
@@ -35,7 +35,16 @@ const folderSlice = createSlice({
         folder.files = folder.files.filter(file => file.id !== action.payload.fileId);
       }
     },
-    editFile: (state, action) => {
+    renameFile: (state, action) => {
+      const folder = state.folders.find(folder => folder.id === action.payload.folderId);
+      if (folder) {
+        const file = folder.files.find(file => file.id === action.payload.fileId);
+        if (file) {
+          file.name = action.payload.newName; 
+        }
+      }
+    },
+    addDataInFile: (state, action) => {
       const folder = state.folders.find(folder => folder.id === action.payload.folderId);
       if (folder) {
         const file = folder.files.find(file => file.id === action.payload.fileId);
@@ -47,21 +56,22 @@ const folderSlice = createSlice({
     setSelectedFolderId: (state, action) => {
       state.selectedFolderId = action.payload;
     },
-    setSelectedFileId: (state, action) => { // Add this line
+    setSelectedFileId: (state, action) => {
       state.selectedFileId = action.payload;
     },
   },
 });
 
 export const {
-  addFolder,
+  createFolder,
   removeFolder,
-  editFolder,
-  addFile,
+  renameFolder,
+  createFile,
   removeFile,
-  editFile,
+  renameFile,
+  addDataInFile,
   setSelectedFolderId,
-  setSelectedFileId, 
+  setSelectedFileId,
 } = folderSlice.actions;
 
 export default folderSlice.reducer;

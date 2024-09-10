@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { CiFileOn } from "react-icons/ci";
-import { addFile, setSelectedFileId } from "../redux/features/folderSlice";
+import {
+  createFile,
+  setSelectedFileId,
+  removeFile,
+  renameFile,
+} from "../redux/features/folderSlice"; // Assuming these actions exist
 import { v4 as uuidv4 } from "uuid";
 
 const Files = () => {
@@ -16,6 +21,12 @@ const Files = () => {
 
   const [fileName, setFileName] = useState("");
   const [showInput, setShowInput] = useState(false);
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    fileId: null,
+  });
 
   const handleFileClickIcon = () => {
     setShowInput(!showInput);
@@ -25,7 +36,7 @@ const Files = () => {
     if (e.key === "Enter") {
       if (fileName.trim() && selectedFolderId) {
         const newFile = { id: uuidv4(), name: fileName.trim(), data: "" };
-        dispatch(addFile({ folderId: selectedFolderId, file: newFile }));
+        dispatch(createFile({ folderId: selectedFolderId, file: newFile }));
         setFileName("");
         setShowInput(false);
       } else {
@@ -36,6 +47,53 @@ const Files = () => {
 
   const handleFileClick = (id) => {
     dispatch(setSelectedFileId(id));
+  };
+
+  const handleContextMenu = (e, fileId) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.pageX,
+      y: e.pageY,
+      fileId,
+    });
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu({
+      ...contextMenu,
+      visible: false,
+    });
+  };
+
+  // Close the context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (contextMenu.visible) closeContextMenu();
+    };
+    window.addEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, [contextMenu.visible]);
+
+  const handleDeleteClick = (fileId) => {
+    if (selectedFolderId && fileId) {
+      dispatch(removeFile({ folderId: selectedFolderId, fileId }));
+    }
+  };
+
+  const handleUpdateClick = (fileId) => {
+    const newName = prompt("Rename File");
+    if (newName && newName.trim() && selectedFolderId) {
+      dispatch(
+        renameFile({
+          folderId: selectedFolderId,
+          fileId,
+          newName: newName.trim(),
+        })
+      );
+    }
   };
 
   return (
@@ -67,6 +125,7 @@ const Files = () => {
                 file.id === selectedFileId ? "bg-gray-200" : "hover:bg-gray-200"
               }`}
               onClick={() => handleFileClick(file.id)}
+              onContextMenu={(e) => handleContextMenu(e, file.id)}
             >
               <CiFileOn />
               <span>{file.name}</span>
@@ -77,6 +136,26 @@ const Files = () => {
         )
       ) : (
         <p className="text-gray-500">Create File.</p>
+      )}
+
+      {contextMenu.visible && (
+        <div
+          className="absolute bg-white border border-gray-300 shadow-lg p-2 rounded flex gap-2 flex-col"
+          style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
+        >
+          <button
+            className="text-red-500"
+            onClick={() => handleDeleteClick(contextMenu.fileId)}
+          >
+            Delete File
+          </button>
+          <button
+            className="text-blue-500"
+            onClick={() => handleUpdateClick(contextMenu.fileId)}
+          >
+            Rename File
+          </button>
+        </div>
       )}
     </div>
   );

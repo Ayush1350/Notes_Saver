@@ -1,26 +1,31 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  addFolder,
+  createFolder,
   setSelectedFolderId,
-  selectedFolderId,
+  removeFolder,
+  renameFolder,
 } from "../redux/features/folderSlice";
 import { toggleSwitch } from "../redux/features/toggleSlice";
 import { FaFolder } from "react-icons/fa";
 
 const Folder = () => {
   const dispatch = useDispatch();
-
   const toggle = useSelector((state) => state.toggle.isOn);
-
   const { folders, selectedFolderId } = useSelector((state) => state.folder);
 
   const [folderName, setFolderName] = useState("");
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    folderId: null,
+  });
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       if (folderName.trim()) {
-        dispatch(addFolder(folderName.trim()));
+        dispatch(createFolder(folderName.trim()));
         setFolderName("");
         dispatch(toggleSwitch(false));
       }
@@ -38,6 +43,46 @@ const Folder = () => {
       dispatch(selectedFolderId(null));
     } else {
       dispatch(setSelectedFolderId(id));
+    }
+  };
+
+  const handleContextMenu = (e, folderId) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.pageX,
+      y: e.pageY,
+      folderId,
+    });
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu({
+      ...contextMenu,
+      visible: false,
+    });
+  };
+
+  // Close the context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (contextMenu.visible) closeContextMenu();
+    };
+    window.addEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, [contextMenu.visible]);
+
+  const handleDelteClick = (id) => {
+    dispatch(removeFolder(id));
+  };
+
+  const handleUpdateClick = (id) => {
+    const rename = prompt("Rename Folder");
+
+    if (rename && rename.trim()) {
+      dispatch(renameFolder({ id, newName: rename.trim() }));
     }
   };
 
@@ -64,6 +109,7 @@ const Folder = () => {
                   : "hover:bg-gray-200"
               }`}
               onClick={() => handleFolderClick(folder.id)}
+              onContextMenu={(e) => handleContextMenu(e, folder.id)}
             >
               <FaFolder />
               <span>{folder.name}</span>
@@ -73,6 +119,26 @@ const Folder = () => {
           <p className="text-gray-500">Create Folder.</p>
         )}
       </div>
+
+      {contextMenu.visible && (
+        <div
+          className="absolute bg-white border border-gray-300 shadow-lg p-2 rounded flex gap-2 flex-col"
+          style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
+        >
+          <button
+            className="text-red-500"
+            onClick={() => handleDelteClick(contextMenu.folderId)}
+          >
+            Delete Folder
+          </button>
+          <button
+            className="text-blue-500"
+            onClick={() => handleUpdateClick(contextMenu.folderId)}
+          >
+            Rename Folder
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaPen } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
-import { editFile } from "../redux/features/folderSlice"; // Import editFile action
+import { addDataInFile } from "../redux/features/folderSlice"; // Import editFile action
 
 function FileData() {
   const dispatch = useDispatch();
@@ -29,49 +29,65 @@ function FileData() {
   }, [selectedFile]);
 
   const handleClick = () => {
-    setShowInput(true);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (showInput) {
       if (fileData.trim() && selectedFileId) {
         dispatch(
-          editFile({
+          addDataInFile({
             folderId: selectedFolderId,
             fileId: selectedFileId,
             newData: fileData.trim(),
           })
         );
-        setShowInput(false);
-      } else {
-        console.error("File data is empty or no file selected.");
       }
+      setShowInput(false);
+    } else {
+      setShowInput(!showInput);
     }
   };
+
+  // const handleKeyDown = (e) => {
+  //   if (e.key === "Enter") {
+  //     if (fileData.trim() && selectedFileId) {
+  //       dispatch(
+  //         editFile({
+  //           folderId: selectedFolderId,
+  //           fileId: selectedFileId,
+  //           newData: fileData.trim(),
+  //         })
+  //       );
+  //       setShowInput(false);
+  //     } else {
+  //       console.error("File data is empty or no file selected.");
+  //     }
+  //   }
+  // };
 
   return (
     <div className="min-h-[38rem] flex-grow p-2 bg-gray-100">
       {selectedFile ? (
-        <div className="flex items-center cursor-pointer gap-1">
-          <FaPen className="text-xl mb-2" onClick={handleClick} />
-          <span>Add Data</span>
+        <div
+          className="flex items-center cursor-pointer gap-1"
+          onClick={handleClick}
+        >
+          <FaPen className="text-xl mb-2" />
+          <span>{showInput ? "Modify Data" : "Add Data"}</span>
         </div>
       ) : null}
       {showInput && selectedFile && (
         <div className="mb-2">
-          <input
-            type="text"
+          <textarea
             placeholder="Edit File Data"
             value={fileData}
-            onKeyDown={handleKeyDown}
             onChange={(e) => setFileData(e.target.value)}
-            className="border border-gray-300 p-2 rounded"
+            className="w-full min-h-[38rem] p-4 bg-gray-100 resize-none"
           />
         </div>
       )}
       {selectedFile ? (
         <div>
-          <p>{selectedFile.data}</p>
+          <textarea className="w-full min-h-[38rem] p-4 bg-gray-100 resize-none">
+            {selectedFile.data}
+          </textarea>
         </div>
       ) : (
         <p className="text-gray-500">Add Data.</p>
