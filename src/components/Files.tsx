@@ -8,7 +8,7 @@ import {
   renameFile,
 } from "../redux/features/folderSlice";
 import { v4 as uuidv4 } from "uuid";
-import { RootState } from "../redux/store";
+import { RootState, AppDispatch } from "../redux/store";
 
 interface ContextMenuState {
   visible: boolean;
@@ -17,8 +17,8 @@ interface ContextMenuState {
   fileId: string | null;
 }
 
-const Files = () => {
-  const dispatch = useDispatch();
+const Files: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
 
   const { folders, selectedFolderId, selectedFileId } = useSelector(
     (state: RootState) => state.folder
@@ -58,8 +58,8 @@ const Files = () => {
   };
 
   useEffect(() => {
-    if (selectedFileId === null) {
-      dispatch(setSelectedFileId(selectedFolder?.files[0].id));
+    if (selectedFileId === null && selectedFolder?.files.length) {
+      dispatch(setSelectedFileId(selectedFolder.files[0].id));
     }
   }, [selectedFolder, selectedFileId, dispatch]);
 
@@ -109,9 +109,11 @@ const Files = () => {
     }
   };
 
-  const handleDragStart = (e, fileId) => {
-    // console.log("Starting drag with file ID:", fileId);
-    e.dataTransfer.setData("text/plain", fileId.toString());
+  const handleDragStart = (
+    e: React.DragEvent<HTMLDivElement>,
+    fileId: string
+  ) => {
+    e.dataTransfer.setData("text/plain", fileId);
   };
 
   return (

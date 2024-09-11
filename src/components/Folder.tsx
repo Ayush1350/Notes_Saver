@@ -1,4 +1,10 @@
-import { useEffect, useState, KeyboardEvent, MouseEvent } from "react";
+import {
+  useEffect,
+  useState,
+  KeyboardEvent,
+  MouseEvent,
+  DragEvent,
+} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   createFolder,
@@ -9,7 +15,7 @@ import {
 } from "../redux/features/folderSlice";
 import { toggleSwitch } from "../redux/features/toggleSlice";
 import { FaFolder } from "react-icons/fa";
-import { RootState } from "../redux/store";
+import { RootState, AppDispatch } from "../redux/store";
 
 interface ContextMenuState {
   visible: boolean;
@@ -18,8 +24,14 @@ interface ContextMenuState {
   folderId: string | null;
 }
 
-const Folder = () => {
-  const dispatch = useDispatch();
+interface Folder {
+  id: string;
+  name: string;
+  files: { id: string }[]; // Assuming files only have an id; adjust if needed
+}
+
+const Folder: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const toggle = useSelector((state: RootState) => state.toggle.isOn);
   const { folders, selectedFolderId } = useSelector(
     (state: RootState) => state.folder
@@ -100,11 +112,11 @@ const Folder = () => {
     }
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e, folderId) => {
+  const handleDrop = (e: DragEvent<HTMLDivElement>, folderId: string) => {
     e.preventDefault();
     const fileID = e.dataTransfer.getData("text/plain");
     dispatch(moveFile({ fileID, targetFolderId: folderId }));
@@ -129,7 +141,7 @@ const Folder = () => {
           folders.map((folder) => (
             <div
               key={folder.id}
-              className={`flex items-center gap-2 cursor-pointer p-2 rounded ${
+              className={`flex items-center justify-between cursor-pointer p-2 rounded ${
                 folder.id === selectedFolderId
                   ? "bg-gray-300"
                   : "hover:bg-gray-200"
@@ -139,8 +151,11 @@ const Folder = () => {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, folder.id)}
             >
-              <FaFolder />
-              <span>{folder.name}</span>
+              <div className="flex items-center gap-1">
+                <FaFolder />
+                <span>{folder.name}</span>
+              </div>
+              <span className="text-[#F28C28]">{folder.files.length}</span>
             </div>
           ))
         ) : (
@@ -150,7 +165,7 @@ const Folder = () => {
 
       {contextMenu.visible && (
         <div
-          className="absolute bg-white border border-gray-300 shadow-lg  rounded flex gap-2 flex-col"
+          className="absolute bg-white border border-gray-300 shadow-lg rounded flex gap-2 flex-col"
           style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
         >
           <button

@@ -20,12 +20,14 @@ interface FolderState {
   selectedFileId: string | null;
 }
 
+// Initial state
 const initialState: FolderState = {
   folders: [],
   selectedFolderId: null,
   selectedFileId: null,
 };
 
+// Create slice
 const folderSlice = createSlice({
   name: 'folder',
   initialState,
@@ -59,7 +61,7 @@ const folderSlice = createSlice({
       if (folder) {
         const file = folder.files.find(file => file.id === action.payload.fileId);
         if (file) {
-          file.name = action.payload.newName; 
+          file.name = action.payload.newName;
         }
       }
     },
@@ -78,30 +80,24 @@ const folderSlice = createSlice({
     setSelectedFileId: (state, action: PayloadAction<string | null>) => {
       state.selectedFileId = action.payload;
     },
-
-    moveFile: (state, action) => {
+    moveFile: (state, action: PayloadAction<{ fileID: string; targetFolderId: string }>) => {
       const { fileID, targetFolderId } = action.payload;
     
-      const sourceFolder = state.folders.find((folder) =>
-        folder.files.find((file) => file.id === fileID)
+      const sourceFolder = state.folders.find(folder =>
+        folder.files.some(file => file.id === fileID)
       );
 
-      const targetFolder = state.folders.find((folder) => folder.id === targetFolderId);
+      const targetFolder = state.folders.find(folder => folder.id === targetFolderId);
     
       if (sourceFolder && targetFolder) {
-        
-        const fileToMove = sourceFolder.files.find((file) => file.id === fileID);
+        const fileToMove = sourceFolder.files.find(file => file.id === fileID);
     
         if (fileToMove) {
-          sourceFolder.files = sourceFolder.files.filter((file) => file.id !== fileID);
-          // console.log(`File with ID ${fileID} removed from source folder`);
-    
+          sourceFolder.files = sourceFolder.files.filter(file => file.id !== fileID);
           targetFolder.files.push(fileToMove);
-          // console.log(`File with ID ${fileID} added to target folder`);
         } 
       }
     }
-    
   },
 });
 
