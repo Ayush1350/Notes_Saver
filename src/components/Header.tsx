@@ -1,15 +1,13 @@
 import { FC } from "react";
 import { FiFolderPlus } from "react-icons/fi";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../redux/store"; // Adjust this import based on where your store type is defined
+import { useDispatch } from "react-redux";
 import { toggleSwitch } from "../redux/features/toggleSlice";
 
 const Header: FC = () => {
   const dispatch = useDispatch();
-  const toggle = useSelector((state: RootState) => state.toggle.isOn);
 
   const handleFolderClick = () => {
-    dispatch(toggleSwitch(!toggle));
+    dispatch(toggleSwitch());
   };
 
   return (

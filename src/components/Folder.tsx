@@ -50,7 +50,7 @@ const Folder: React.FC = () => {
       if (folderName.trim()) {
         dispatch(createFolder(folderName.trim()));
         setFolderName("");
-        dispatch(toggleSwitch(false));
+        dispatch(toggleSwitch()); // No arguments needed here
       }
     }
   };

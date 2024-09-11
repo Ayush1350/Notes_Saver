@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 interface ToggleState {
   isOn: boolean;
@@ -12,8 +12,8 @@ const toggleSlice = createSlice({
   name: 'toggle',
   initialState,
   reducers: {
-    toggleSwitch: (state,Action: PayloadAction<boolean>) => {
-      state.isOn = !Action.payload;
+    toggleSwitch: (state) => {
+      state.isOn = !state.isOn;
     },
   },
 });
