@@ -5,6 +5,7 @@ import {
   setSelectedFolderId,
   removeFolder,
   renameFolder,
+  moveFile,
 } from "../redux/features/folderSlice";
 import { toggleSwitch } from "../redux/features/toggleSlice";
 import { FaFolder } from "react-icons/fa";
@@ -99,8 +100,19 @@ const Folder = () => {
     }
   };
 
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, folderId) => {
+    e.preventDefault();
+    const fileID = e.dataTransfer.getData("text/plain");
+    dispatch(moveFile({ fileID, targetFolderId: folderId }));
+    // console.log("Dropped file ID:", fileID, "into folder ID:", folderId);
+  };
+
   return (
-    <div className="flex flex-col border-r border-gray-300 min-h-[38rem] w-[50%] flex-grow p-2 bg-gray-100">
+    <div className="flex flex-col border-r border-gray-300 w-[50%] flex-grow p-2 bg-gray-100">
       {toggle && (
         <input
           type="text"
@@ -124,6 +136,8 @@ const Folder = () => {
               }`}
               onClick={() => handleFolderClick(folder.id)}
               onContextMenu={(e) => handleContextMenu(e, folder.id)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, folder.id)}
             >
               <FaFolder />
               <span>{folder.name}</span>

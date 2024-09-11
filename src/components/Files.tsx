@@ -59,7 +59,7 @@ const Files = () => {
 
   useEffect(() => {
     if (selectedFileId === null) {
-      dispatch(setSelectedFileId(selectedFolder.files[0].id));
+      dispatch(setSelectedFileId(selectedFolder?.files[0].id));
     }
   }, [selectedFolder, selectedFileId, dispatch]);
 
@@ -109,8 +109,13 @@ const Files = () => {
     }
   };
 
+  const handleDragStart = (e, fileId) => {
+    // console.log("Starting drag with file ID:", fileId);
+    e.dataTransfer.setData("text/plain", fileId.toString());
+  };
+
   return (
-    <div className="border-r border-gray-300 min-h-[38rem] w-[70%] flex-grow p-2 bg-gray-100">
+    <div className="border-r border-gray-300 w-[70%] flex-grow p-2 bg-gray-100">
       {selectedFolder ? (
         <div className="flex cursor-pointer">
           <CiFileOn className="text-2xl mb-2" onClick={handleFileClickIcon} />
@@ -140,6 +145,8 @@ const Files = () => {
               }`}
               onClick={() => handleFileClick(file.id)}
               onContextMenu={(e) => handleContextMenu(e, file.id)}
+              draggable
+              onDragStart={(e) => handleDragStart(e, file.id)}
             >
               <CiFileOn />
               <span>{file.name}</span>

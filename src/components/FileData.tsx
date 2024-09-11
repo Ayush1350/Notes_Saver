@@ -43,7 +43,7 @@ function FileData() {
   }, [selectedFile, editor]);
 
   return (
-    <div className="min-h-[38rem] min-w-[50%] flex-grow p-2 bg-gray-100">
+    <div className=" min-w-[50%] flex-grow p-2 bg-gray-100">
       {selectedFile ? (
         <>
           <div className="flex items-center cursor-pointer gap-1 mb-2">

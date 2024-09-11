@@ -78,6 +78,30 @@ const folderSlice = createSlice({
     setSelectedFileId: (state, action: PayloadAction<string | null>) => {
       state.selectedFileId = action.payload;
     },
+
+    moveFile: (state, action) => {
+      const { fileID, targetFolderId } = action.payload;
+    
+      const sourceFolder = state.folders.find((folder) =>
+        folder.files.find((file) => file.id === fileID)
+      );
+
+      const targetFolder = state.folders.find((folder) => folder.id === targetFolderId);
+    
+      if (sourceFolder && targetFolder) {
+        
+        const fileToMove = sourceFolder.files.find((file) => file.id === fileID);
+    
+        if (fileToMove) {
+          sourceFolder.files = sourceFolder.files.filter((file) => file.id !== fileID);
+          // console.log(`File with ID ${fileID} removed from source folder`);
+    
+          targetFolder.files.push(fileToMove);
+          // console.log(`File with ID ${fileID} added to target folder`);
+        } 
+      }
+    }
+    
   },
 });
 
@@ -91,6 +115,7 @@ export const {
   addDataInFile,
   setSelectedFolderId,
   setSelectedFileId,
+  moveFile,
 } = folderSlice.actions;
 
 export default folderSlice.reducer;
