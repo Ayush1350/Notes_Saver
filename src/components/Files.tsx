@@ -14,7 +14,7 @@ interface ContextMenuState {
   visible: boolean;
   x: number;
   y: number;
-  fileId: string | null;
+  fileId: string | any;
 }
 
 const Files: React.FC = () => {

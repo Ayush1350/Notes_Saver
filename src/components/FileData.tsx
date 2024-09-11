@@ -16,13 +16,13 @@ const FileData: React.FC = () => {
     (folder) => folder.id === selectedFolderId
   );
 
-  const selectedFile = selectedFolder
+  const selectedFile: any = selectedFolder
     ? selectedFolder.files.find((file) => file.id === selectedFileId)
     : null;
 
   const editor = useEditor({
     extensions: [StarterKit],
-    content: selectedFile ? selectedFile.data : "",
+    content: selectedFile ? selectedFile?.data : "",
     onUpdate({ editor }) {
       if (selectedFileId) {
         dispatch(
@@ -38,7 +38,7 @@ const FileData: React.FC = () => {
 
   useEffect(() => {
     if (selectedFile && editor) {
-      editor.commands.setContent(selectedFile.data);
+      editor.commands.setContent(selectedFile?.data);
     }
   }, [selectedFile, editor]);
 

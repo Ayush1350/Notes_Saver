@@ -56,7 +56,7 @@ const folderSlice = createSlice({
         folder.files = folder.files.filter(file => file.id !== action.payload.fileId);
       }
     },
-    renameFile: (state, action: PayloadAction<{ folderId: string; fileId: string; newName: string }>) => {
+    renameFile: (state, action: PayloadAction<{ folderId: string; fileId: string|any; newName: string }>) => {
       const folder = state.folders.find(folder => folder.id === action.payload.folderId);
       if (folder) {
         const file = folder.files.find(file => file.id === action.payload.fileId);
