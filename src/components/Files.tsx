@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, KeyboardEvent, MouseEvent } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { CiFileOn } from "react-icons/ci";
 import {
@@ -6,22 +6,30 @@ import {
   setSelectedFileId,
   removeFile,
   renameFile,
-} from "../redux/features/folderSlice"; // Assuming these actions exist
+} from "../redux/features/folderSlice";
 import { v4 as uuidv4 } from "uuid";
+import { RootState } from "../redux/store";
+
+interface ContextMenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  fileId: string | null;
+}
 
 const Files = () => {
   const dispatch = useDispatch();
 
   const { folders, selectedFolderId, selectedFileId } = useSelector(
-    (state) => state.folder
+    (state: RootState) => state.folder
   );
   const selectedFolder = folders.find(
     (folder) => folder.id === selectedFolderId
   );
 
-  const [fileName, setFileName] = useState("");
-  const [showInput, setShowInput] = useState(false);
-  const [contextMenu, setContextMenu] = useState({
+  const [fileName, setFileName] = useState<string>("");
+  const [showInput, setShowInput] = useState<boolean>(false);
+  const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     visible: false,
     x: 0,
     y: 0,
@@ -32,7 +40,7 @@ const Files = () => {
     setShowInput(!showInput);
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (fileName.trim() && selectedFolderId) {
         const newFile = { id: uuidv4(), name: fileName.trim(), data: "" };
@@ -45,11 +53,17 @@ const Files = () => {
     }
   };
 
-  const handleFileClick = (id) => {
+  const handleFileClick = (id: string) => {
     dispatch(setSelectedFileId(id));
   };
 
-  const handleContextMenu = (e, fileId) => {
+  useEffect(() => {
+    if (selectedFileId === null) {
+      dispatch(setSelectedFileId(selectedFolder.files[0].id));
+    }
+  }, [selectedFolder, selectedFileId, dispatch]);
+
+  const handleContextMenu = (e: MouseEvent<HTMLDivElement>, fileId: string) => {
     e.preventDefault();
     setContextMenu({
       visible: true,
@@ -66,7 +80,6 @@ const Files = () => {
     });
   };
 
-  // Close the context menu when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
       if (contextMenu.visible) closeContextMenu();
@@ -77,13 +90,13 @@ const Files = () => {
     };
   }, [contextMenu.visible]);
 
-  const handleDeleteClick = (fileId) => {
+  const handleDeleteClick = (fileId: string | null) => {
     if (selectedFolderId && fileId) {
       dispatch(removeFile({ folderId: selectedFolderId, fileId }));
     }
   };
 
-  const handleUpdateClick = (fileId) => {
+  const handleUpdateClick = (fileId: string | null) => {
     const newName = prompt("Rename File");
     if (newName && newName.trim() && selectedFolderId) {
       dispatch(
@@ -97,10 +110,10 @@ const Files = () => {
   };
 
   return (
-    <div className="border-r border-gray-300 min-h-[38rem] flex-grow p-2 bg-gray-100">
+    <div className="border-r border-gray-300 min-h-[38rem] w-[70%] flex-grow p-2 bg-gray-100">
       {selectedFolder ? (
         <div className="flex cursor-pointer">
-          <CiFileOn className=" text-2xl mb-2" onClick={handleFileClickIcon} />
+          <CiFileOn className="text-2xl mb-2" onClick={handleFileClickIcon} />
           <span onClick={handleFileClickIcon}>Create File</span>
         </div>
       ) : null}
@@ -113,6 +126,7 @@ const Files = () => {
             onKeyDown={handleKeyDown}
             onChange={(e) => setFileName(e.target.value)}
             className="border border-gray-300 p-2 rounded"
+            autoFocus
           />
         </div>
       )}
@@ -135,22 +149,22 @@ const Files = () => {
           <p className="text-gray-500">No files in this folder</p>
         )
       ) : (
-        <p className="text-gray-500">Create File.</p>
+        <p className="text-gray-500">Create Folder To Create File.</p>
       )}
 
       {contextMenu.visible && (
         <div
-          className="absolute bg-white border border-gray-300 shadow-lg p-2 rounded flex gap-2 flex-col"
+          className="absolute bg-white border border-gray-300 shadow-lg rounded flex gap-2 flex-col"
           style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
         >
           <button
-            className="text-red-500"
+            className="text-red-500 hover:bg-gray-200 rounded p-2"
             onClick={() => handleDeleteClick(contextMenu.fileId)}
           >
             Delete File
           </button>
           <button
-            className="text-blue-500"
+            className="text-blue-500 hover:bg-gray-200 rounded p-2"
             onClick={() => handleUpdateClick(contextMenu.fileId)}
           >
             Rename File

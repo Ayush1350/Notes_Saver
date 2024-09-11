@@ -1,4 +1,4 @@
-import { FaRegFolder } from "react-icons/fa";
+import { FiFolderPlus } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleSwitch } from "../redux/features/toggleSlice";
 
@@ -18,7 +18,7 @@ function Header() {
           className="flex gap-2 mt-2 cursor-pointer"
           onClick={handleFolderClick}
         >
-          <FaRegFolder className="cursor-pointer text-2xl" />
+          <FiFolderPlus className="cursor-pointer text-2xl" />
           <span>Create Folder</span>
         </div>
       </div>
