@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { JSONContent } from '@tiptap/core';
 import { v4 as uuidv4 } from 'uuid';
 
 // Define the types
 interface File {
   id: string;
   name: string;
-  data?: string;
+  data?: string | JSON;
 }
 
 interface Folder {
@@ -65,7 +66,7 @@ const folderSlice = createSlice({
         }
       }
     },
-    addDataInFile: (state, action: PayloadAction<{ folderId: string; fileId: string; newData: string }>) => {
+    addDataInFile: (state, action: PayloadAction<{ folderId: string; fileId: string; newData: string | any }>) => {
       const folder = state.folders.find(folder => folder.id === action.payload.folderId);
       if (folder) {
         const file = folder.files.find(file => file.id === action.payload.fileId);

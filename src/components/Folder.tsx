@@ -27,7 +27,7 @@ interface ContextMenuState {
 interface Folder {
   id: string;
   name: string;
-  files: { id: string }[]; // Assuming files only have an id; adjust if needed
+  files: { id: string }[];
 }
 
 const Folder: React.FC = () => {
@@ -50,7 +50,7 @@ const Folder: React.FC = () => {
       if (folderName.trim()) {
         dispatch(createFolder(folderName.trim()));
         setFolderName("");
-        dispatch(toggleSwitch()); // No arguments needed here
+        dispatch(toggleSwitch());
       }
     }
   };
